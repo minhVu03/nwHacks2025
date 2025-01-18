@@ -12,7 +12,12 @@
     "type": "git",
     "url": "git+https://github.com/minhVu03/nwHacks2025.git"
   },
-  "keywords": ["disaster-readiness", "nasa-firms", "wildfire-tracking", "hackathon"],
+  "keywords": [
+    "disaster-readiness",
+    "nasa-firms",
+    "wildfire-tracking",
+    "hackathon"
+  ],
   "author": "nwHacks2025 Team",
   "license": "ISC",
   "bugs": {
@@ -24,7 +29,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "papaparse": "^5.5.1"
+    "papaparse": "^5.5.1",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "eslint": "^8.51.0",

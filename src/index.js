@@ -19,9 +19,11 @@ app.use(express.json());
 // Routes
 const fireRoutes = require("./routes/fireRoutes");
 const generalRoutes = require("./routes/generalRoutes");
+const gdacsRoutes = require("./routes/gdacsRoutes");
 
 app.use("/api/fires", fireRoutes);
 app.use("/api", generalRoutes);
+app.use("/api", gdacsRoutes);
 
 // Start the server
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
