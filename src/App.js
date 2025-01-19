@@ -101,9 +101,7 @@ function App() {
     }
   };
 
-  /// OPEN AI
   
-
   // const fetchData = async () => {
   //     setLoading(true);
   //     setError(null);
