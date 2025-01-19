@@ -1,8 +1,13 @@
+
 import React, { useState, useRef } from "react";
 import { GoogleMap, LoadScript, MarkerF } from "@react-google-maps/api";
+import { OpenAI } from 'openai';
+import axios from 'axios';
 import './App.css';
 import foodBankImage from './images/food-bank.png';
 import megaphoneImage from './images/megaphone.png';
+import hospitalImage from './images/hospital.png';
+
 
 function App() {
   const [showChatbox, setShowChatbox] = useState(false);
@@ -64,14 +69,17 @@ function App() {
     scaleControl: false,
   };
 
+  const [thisLocation, setThisLocation] = useState("Vancouver");  
   // Handle location search
   const handleSearch = async (event) => {
     if (event.key === "Enter") {
       const location = event.target.value;
+      setThisLocation(location);
       if (!location) return;
 
       try {
         // Fetch coordinates using Geocoding API
+        console.log(thisLocation, location);
         const response = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
         );
@@ -92,6 +100,67 @@ function App() {
       }
     }
   };
+
+  /// OPEN AI
+  
+
+  // const fetchData = async () => {
+  //     setLoading(true);
+  //     setError(null);
+
+  //     // console.log(process.env.REACT_APP_OPEN_AI)
+  //     // console.log(process.env.REACT_APP_GOOGLE_MAPS_API_KEY)
+  //     const openai = new OpenAI({
+  //         apiKey: process.env.REACT_APP_OPEN_AI,
+  //         dangerouslyAllowBrowser: true
+  //         // apiKey:"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"
+  //     });
+
+  //     try {
+  //         const completion = await openai.chat.completions.create({
+  //             model: "gpt-4", // Correct model name
+  //             store: true,
+  //             messages: [
+  //                 {
+  //                     role: "user",
+  //                     content: "List 4 Hospitals, Food Banks, and Shelters in 50.6745° N, 120.3273° W, with phone numbers and hours of operation.",
+  //                 },
+  //             ],
+  //         });
+
+  //         setData(completion.choices[0].message.content);
+  //     } catch (err) {
+  //         setError('Failed to fetch data. Please try again.');
+  //     } finally {
+  //         setLoading(false);
+  //     }
+  // };
+  const [openAiData, setOpenAiData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const callOpenAI = async (userMessage) => {
+    try {
+        console.log(thisLocation);
+        console.log("enter try")
+        const response = await axios.post('http://localhost:3001/openai', {
+            userMessage,
+        });
+        console.log('OpenAI Response:', response.data.data);
+        let responseString = response.data.data;
+        responseString = responseString.slice(7, -3)
+        console.log(responseString);
+        const obj = JSON.parse(responseString);
+        console.log(obj)
+        setOpenAiData(obj);
+    } catch (error) {
+        console.error('Error calling OpenAI API:', error);
+    }
+  };
+
+  //news
+
+  
 
   return (
     <div className="App">
@@ -139,6 +208,7 @@ function App() {
           <div className="big-card air style-border">
             <span className="box-title">Air Quality</span>
             <div className="score-box">
+              <button onClick={() => callOpenAI(thisLocation)}>Test</button> 
               <span>43</span>
               <span>Good</span>
               <div>
@@ -170,15 +240,16 @@ function App() {
           <div className="big-card food-bank style-border">
             <span className="box-title">Food Banks</span>
             <div className="small-card-wrapper">
-              {[...Array(2)].map((_, index) => (
+              {console.log(openAiData && openAiData.food_banks)}
+              {openAiData && openAiData.food_banks.map(({name, address, phone_number, hours_of_operation}, index) => (
                 <div key={index} className="small-card style-border">
-                  <span>Kamloops Food Bank</span>
+                  <span>{name}</span>
                   <img src={foodBankImage} alt="Food Bank" />
                   <span>
-                    Address: 171 Wilson St, Kamloops, BC V2B 2M4, Canada
+                    {address}
                   </span>
-                  <span>Phone: +1 250-376-2252</span>
-                  <span>Hours: Mon-Fri: 8:00 AM - 2:00 PM</span>
+                  <span>{phone_number}</span>
+                  <span>{hours_of_operation}</span>
                 </div>
               ))}
             </div>
@@ -189,15 +260,15 @@ function App() {
           <div className="big-card hospital style-border">
             <span className="box-title">Hospitals & Shelters</span>
             <div className="small-card-wrapper hospital">
-              {[...Array(4)].map((_, index) => (
+            {openAiData && openAiData.hospitals_and_shelters.map(({name, address, phone_number, hours_of_operation}, index) => (
                 <div key={index} className="small-card style-border">
-                  <span>Kamloops Food Bank</span>
-                  <img src={foodBankImage} alt="Food Bank" />
+                  <span>{name}</span>
+                  <img src={hospitalImage} alt="Food Bank" />
                   <span>
-                    Address: 171 Wilson St, Kamloops, BC V2B 2M4, Canada
+                    {address}
                   </span>
-                  <span>Phone: +1 250-376-2252</span>
-                  <span>Hours: Mon-Fri: 8:00 AM - 2:00 PM</span>
+                  <span>{phone_number}</span>
+                  <span>{hours_of_operation}</span>
                 </div>
               ))}
             </div>

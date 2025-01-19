@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@huggingface/inference": "^3.0.0",
     "@react-google-maps/api": "^2.20.5",
     "@testing-library/react": "^13.4.0",
-    "@huggingface/inference": "^3.0.0",
-    "@testing-library/react": "^13.4.0",
+    "axios": "^1.7.9",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "prompt-sync": "^4.2.0",
