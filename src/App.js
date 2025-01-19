@@ -113,7 +113,7 @@ function App() {
   //     const openai = new OpenAI({
   //         apiKey: process.env.REACT_APP_OPEN_AI,
   //         dangerouslyAllowBrowser: true
-  //         // apiKey:"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"
+  //        
   //     });
 
   //     try {
@@ -160,7 +160,7 @@ function App() {
 
   //news
 
-  
+
 
   return (
     <div className="App">
