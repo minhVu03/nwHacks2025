@@ -1,0 +1,330 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.box-title{
+  color: #FFF;
+  text-shadow: 3px 3px 0px #5F4253;
+  -webkit-text-stroke-width: 4px;
+  -webkit-text-stroke-color: #5F4253;
+  font-family: Quicksand;
+  font-size: 32px;
+  font-style: bold;
+  font-weight: 700;
+  line-height: normal;
+  paint-order: stroke fill;
+  margin: 10px auto 10px auto;
+}
+
+#map {
+  height: 400px;            
+  width: 1000px;              
+  max-width: 1200px;
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.map-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  padding-left: 80px;
+  width: 100%;
+}
+
+
+.map-wrapper {
+  width: 1000px;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.landing {
+  display: flex;
+  background-color: #F9AC38;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 500px;
+  padding-left: 80px;
+  width: 100%;
+}
+
+.landing-left-box {
+  text-align: left;
+}
+
+.style-border {
+  border-radius: 15px;
+  border: 2px solid #5F4253;
+  background: #FFC5CB;
+  box-shadow: 6px 6px 0px 0px #5F4253;
+}
+
+.body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 900px;
+  padding-top: 100px;
+  margin: auto;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+  min-width: 900px;
+}
+
+.big-card {
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+  /* min-width: 250px; */
+  min-height: 400px;
+  width: 100%;
+  padding: 20px;
+}
+
+.small-card-wrapper{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.small-card-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.small-card {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  background-color: white;
+  margin: 20px;
+  padding: 20px 80px 20px 80px;
+  width: 20%;
+  
+}
+
+.small-card span {
+  margin: 20px auto 20px auto;
+}
+
+.small-card img{
+  width: 100px;
+}
+
+.hospital .small-card{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background-color: white;
+  margin: 20px;
+}
+
+
+.chatbox {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 300px;
+  height: 400px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.chat-message {
+  padding: 10px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+}
+
+.chat-message.user {
+  background-color: #e1ffc7;
+  align-self: flex-end;
+}
+
+.chat-message.bot {
+  background-color: #f1f1f1;
+  align-self: flex-start;
+}
+
+.chat-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  background-color: #63221e;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.news-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  overflow: scroll;
+  max-width: 100%;
+}
+
+.news-card{
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  background-color: white;
+  min-height: 100px;
+  margin: 10px;
+
+}
+
+.news-card:hover {
+  cursor: pointer;
+}
+
+.news-card img{
+  /* width: 20px; */
+  width: 10%;
+
+}
+
+.news-info{
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.news-info span{
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  width: 250px; 
+  /* height: 1.2em;  */
+  white-space: nowrap;
+}
+
+.row-one .big-card:first-child{
+  width: 40%;
+}
+
+.air{
+  background-color: #F27A21;
+}
+
+.news{
+  background-color: #9A080C;
+}
+
+.food-bank{
+  background-color: #F9AC38;
+}
+
+.hospital{
+  background-color: #F27A21;
+}
+
+.score-box{
+  background-color: white;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  margin: 10px;
+  height: 250px;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-box-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  padding-left: 200px;
+
+}
+
+.search-box-input {
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  padding: 10px;
+  width: 300px;
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.search-box-input:focus {
+  border-color: #FF6F61; 
+}
+
+span{
+  font-family: Quicksand;
+}
+.score-box .index{
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.score-box .index-description{
+  font-size: 20px;
+  font-weight: bold;
+}
