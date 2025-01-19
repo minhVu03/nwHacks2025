@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+
 .App {
   text-align: center;
 }
@@ -23,6 +25,20 @@
   color: #61dafb;
 }
 
+.box-title{
+  color: #FFF;
+  text-shadow: 3px 3px 0px #5F4253;
+  -webkit-text-stroke-width: 4px;
+  -webkit-text-stroke-color: #5F4253;
+  font-family: Quicksand;
+  font-size: 32px;
+  font-style: bold;
+  font-weight: 700;
+  line-height: normal;
+  paint-order: stroke fill;
+  margin: 10px auto 10px auto;
+}
+
 .landing{
   display: flex;
   background-color: #F9AC38;
@@ -32,7 +48,7 @@
 }
 
 .style-border{
-  border-radius: 20px;
+  border-radius: 15px;
   border: 2px solid #5F4253;
   background: #FFC5CB;
   box-shadow: 6px 6px 0px 0px #5F4253;
@@ -44,7 +60,7 @@
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  max-width: 700px;
+  max-width: 900px;
   padding-top: 100px;
   margin: auto;
 }
@@ -54,23 +70,59 @@
   justify-content: center;
   align-items: center;
   margin: 20px;
-  min-width: 800px;
-  background-color: red;
+  min-width: 900px;
 }
 
 .big-card{
+  display: flex;
+  flex-direction: column;
   margin: 20px;
-  min-width: 250px;
-  min-height: 300px;
+  /* min-width: 250px; */
+  min-height: 400px;
+  width: 100%;
   padding: 20px;
+}
+
+.small-card-wrapper{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
 }
 
 .small-card{
   display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-
+  min-height: 400px;
+  background-color: white;
+  margin: 20px;
+  padding: 20px 80px 20px 80px;
+  width: 20%;
+  
 }
+
+.small-card span {
+  margin: 20px auto 20px auto;
+}
+
+.small-card img{
+  width: 100px;
+}
+
+.hospital .small-card{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background-color: white;
+  margin: 20px;
+}
+
 
 .chatbox {
   position: fixed;
@@ -125,3 +177,62 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   z-index: 1000;
 }
+
+.news-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  overflow: scroll;
+  max-width: 100%;
+}
+
+.news-card{
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  background-color: white;
+  min-height: 100px;
+  margin: 10px;
+}
+
+.news-card img{
+  /* width: 20px; */
+  width: 10%;
+
+}
+
+.news-info{
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.row-one .big-card:first-child{
+  width: 40%;
+}
+
+.air{
+  background-color: #F27A21;
+}
+
+.news{
+  background-color: #9A080C;
+}
+
+.food-bank{
+  background-color: #F9AC38;
+}
+
+.hospital{
+  background-color: #F27A21;
+}
+
+.score-box{
+  background-color: white;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
