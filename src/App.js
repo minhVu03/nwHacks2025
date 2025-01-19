@@ -14,6 +14,7 @@ function App() {
   const [thisLocation, setThisLocation] = useState("Vancouver");
   const [news, setNews] = useState([]); // State for storing news data
   const [openAiData, setOpenAiData] = useState(null);
+  const [airQuality, setAirQuality] = useState(null); // State for Air Quality
 
   const mapRef = useRef();
 
@@ -88,6 +89,7 @@ function App() {
           mapRef.current.panTo(newCenter); // Pan the map to the new location
 
           callOpenAI(location);
+          fetchAirQuality(lat, lng); // Fetch air quality data for the new location
         } else {
           alert("Location not found. Please try again.");
         }
@@ -111,9 +113,37 @@ function App() {
     }
   };
 
+  const fetchAirQuality = async (lat, lng) => {
+    try {
+      const response = await axios.get(
+        `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lng}&appid=${process.env.REACT_APP_OPENWEATHER_API_KEY}`
+      );
+      const data = response.data;
+
+      // Extract and format air quality information
+      const airQualityIndex = data.list[0].main.aqi;
+      const airQualityDescriptions = [
+        "Good",
+        "Fair",
+        "Moderate",
+        "Poor",
+        "Very Poor",
+      ];
+      const airQualityText = airQualityDescriptions[airQualityIndex - 1];
+
+      setAirQuality({
+        index: airQualityIndex,
+        description: airQualityText,
+      });
+    } catch (error) {
+      console.error("Error fetching air quality data:", error);
+      setAirQuality(null); // Reset on error
+    }
+  };
+
   useEffect(() => {
     if (!thisLocation) return;
-  
+
     const fetchNews = async () => {
       const config = {
         method: "get",
@@ -122,28 +152,28 @@ function App() {
         )}&language=en&sortBy=publishedAt&pageSize=5&apiKey=${process.env.REACT_APP_NEWS_API_KEY}`,
         headers: {},
       };
-  
+
       try {
         const response = await axios.request(config);
         const articles = response.data.articles || [];
-  
-        // Filter articles to ensure relevance (optional, based on keywords in title/description)
+
+        // Filter articles to ensure relevance (optional)
         const relevantArticles = articles.filter(
           (article) =>
             article.title.toLowerCase().includes("wildfire") ||
             article.description.toLowerCase().includes("evacuation")
         );
-  
+
         setNews(relevantArticles); // Update state with filtered articles
       } catch (error) {
         console.error("Error fetching news data:", error);
         setNews([]); // Reset news data on error
       }
     };
-  
+
     fetchNews();
-  }, [thisLocation]); // Fetch news whenever thisLocation changes
-  
+  }, [thisLocation]);
+
   return (
     <div className="App">
       <div className="landing">
@@ -180,20 +210,33 @@ function App() {
           </div>
         </div>
       </div>
-
+  
       <div className="body">
         <div className="row row-two">
+          {/* Air Quality Section */}
           <div className="big-card air style-border">
             <span className="box-title">Air Quality</span>
             <div className="score-box">
-              <span>43</span>
-              <span>Good</span>
-              <div>
-                <p>Health Advisory</p>
-                <span>Air quality is satisfactory. Outdoor activities are safe.</span>
-              </div>
+              {airQuality ? (
+                <>
+                  <span>{airQuality.index}</span>
+                  <span>{airQuality.description}</span>
+                  <div>
+                    <p>Health Advisory</p>
+                    <span>
+                      {airQuality.description === "Good"
+                        ? "Air quality is satisfactory. Outdoor activities are safe."
+                        : "Consider limiting prolonged outdoor activities."}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <p>Loading air quality data...</p>
+              )}
             </div>
           </div>
+  
+          {/* News Section */}
           <div className="big-card news style-border">
             <span className="box-title">News & Media</span>
             <div className="news-card-wrapper">
@@ -213,57 +256,59 @@ function App() {
                   </div>
                 ))
               ) : (
-                <p>No news available for this location.</p>
+                <p>No relevant news available for this location.</p>
               )}
             </div>
           </div>
         </div>
-
+  
+        {/* Food Banks Section */}
         <div className="row row-two">
           <div className="big-card food-bank style-border">
             <span className="box-title">Food Banks</span>
             <div className="small-card-wrapper">
-              {console.log(openAiData && openAiData.food_banks)}
-              {openAiData && openAiData.food_banks.map(({name, address, phone_number, hours_of_operation}, index) => (
-                <div key={index} className="small-card style-border">
-                  <span>{name}</span>
-                  <img src={foodBankImage} alt="Food Bank" />
-                  <span>
-                    {address}
-                  </span>
-                  <span>{phone_number}</span>
-                  <span>{hours_of_operation}</span>
-                </div>
-              ))}
+              {openAiData &&
+                openAiData.food_banks.map(
+                  ({ name, address, phone_number, hours_of_operation }, index) => (
+                    <div key={index} className="small-card style-border">
+                      <span>{name}</span>
+                      <img src={foodBankImage} alt="Food Bank" />
+                      <span>{address}</span>
+                      <span>{phone_number}</span>
+                      <span>{hours_of_operation}</span>
+                    </div>
+                  )
+                )}
             </div>
           </div>
         </div>
-
+  
+        {/* Hospitals Section */}
         <div className="row row-three">
           <div className="big-card hospital style-border">
             <span className="box-title">Hospitals & Shelters</span>
             <div className="small-card-wrapper hospital">
-            {openAiData && openAiData.hospitals_and_shelters.map(({name, address, phone_number, hours_of_operation}, index) => (
-                <div key={index} className="small-card style-border">
-                  <span>{name}</span>
-                  <img src={hospitalImage} alt="Food Bank" />
-                  <span>
-                    {address}
-                  </span>
-                  <span>{phone_number}</span>
-                  <span>{hours_of_operation}</span>
-                </div>
-              ))}
+              {openAiData &&
+                openAiData.hospitals_and_shelters.map(
+                  ({ name, address, phone_number, hours_of_operation }, index) => (
+                    <div key={index} className="small-card style-border">
+                      <span>{name}</span>
+                      <img src={hospitalImage} alt="Hospital" />
+                      <span>{address}</span>
+                      <span>{phone_number}</span>
+                      <span>{hours_of_operation}</span>
+                    </div>
+                  )
+                )}
             </div>
           </div>
         </div>
       </div>
-      {/* Chatbot Icon */}
+  
+      {/* Chatbot Section */}
       <div className="chat-icon" onClick={toggleChatbox}>
         💬
       </div>
-
-      {/* Chatbox */}
       {showChatbox && (
         <div className="chatbox">
           <div className="chat-messages">
@@ -287,3 +332,4 @@ function App() {
 }
 
 export default App;
+
