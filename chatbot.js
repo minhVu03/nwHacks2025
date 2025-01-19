@@ -1,7 +1,7 @@
 const { HfInference } = require("@huggingface/inference");
 const prompt = require("prompt-sync")();
 
-const hf = new HfInference("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");
+const hf = new HfInference(process.env.HUGGINGFACE_TOKEN);
 
 // Model name to use (similar to "facebook/blenderbot-400M-distill" in Python)
 const modelName = "facebook/blenderbot-400M-distill";
@@ -30,7 +30,7 @@ async function chat() {
         console.log(`Chatbot: ${response.generated_text}`);
     } catch (error) {
         console.error("Error generating response:", error.message);
-    }node 
+    }
     }
 }
 

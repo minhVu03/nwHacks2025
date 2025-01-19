@@ -3,11 +3,12 @@ from transformers import pipeline
 from transformers import AutoTokenizer,AutoModelForSeq2SeqLM
 # from transformers import AutoTokenizer, AutoModelForCausalLM
 from huggingface_hub import login
+require('dotenv').config();
 
 # Log in to Hugging Face
 login(
     new_session=False,           # Will not request the token if already saved on your machine
-    token='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',          # Replace 'Your token' with your Hugging Face token
+    token=process.env.HUGGINGFACE_TOKEN,          # Replace 'Your token' with your Hugging Face token
     add_to_git_credential=True   # Adds token to your Git credentials for authentication
 )
 
