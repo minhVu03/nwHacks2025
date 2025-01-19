@@ -2,7 +2,7 @@ const axios = require("axios");
 const xml2js = require("xml2js");
 
 // GDACS RSS Feed URL
-const GDACS_RSS_URL = "https://gdacs.org/xml/rss.xml";
+const GDACS_RSS_URL = "https://www.gdacs.org/xml/rss.xml";
 
 const getGdacsRssData = async (filterByFire = false) => {
   try {
@@ -16,7 +16,9 @@ const getGdacsRssData = async (filterByFire = false) => {
     const parsedData = await parser.parseStringPromise(response.data);
 
     // Extract the `item` array from the RSS feed
-    const items = parsedData.rss.channel.item;
+    const items = Array.isArray(parsedData.rss.channel.item)
+      ? parsedData.rss.channel.item
+      : [parsedData.rss.channel.item]; // Handle single-item arrays
 
     // Clean and format the data
     let cleanedData = items.map((item) => ({
