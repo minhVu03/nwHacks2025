@@ -6,9 +6,6 @@ const cors = require("cors");
 dotenv.config();
 
 const MAP_KEY = process.env.MAP_KEY; 
-//const MAP_KEY = "a1dc556028f6ca4dd077e4e1ff893ff0";
-console.log("Loaded MAP_KEY:", MAP_KEY);
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -20,10 +17,14 @@ app.use(express.json());
 const fireRoutes = require("./routes/fireRoutes");
 const generalRoutes = require("./routes/generalRoutes");
 const gdacsRoutes = require("./routes/gdacsRoutes");
+const weatherRoutes = require("./routes/weatherRoutes");
+
 
 app.use("/api/fires", fireRoutes);
 app.use("/api", generalRoutes);
 app.use("/api", gdacsRoutes);
+app.use("/api", weatherRoutes);
+
 
 // Start the server
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

@@ -3,7 +3,6 @@ const { cleanCountryData, cleanFireData } = require("./parseCsv");
 
 const BASE_URL = "https://firms.modaps.eosdis.nasa.gov/api";
 const MAP_KEY = process.env.MAP_KEY;
-//const MAP_KEY = "a1dc556028f6ca4dd077e4e1ff893ff0";
 
 // Fetch and clean fire data by area
 const getFireDataByArea = async (source, area, days) => {
