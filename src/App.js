@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { GoogleMap, LoadScript, MarkerF, StandaloneSearchBox } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, MarkerF } from "@react-google-maps/api";
 import './App.css';
 
 function App() {
@@ -8,7 +8,6 @@ function App() {
     lng: -122.4194,
   });
   const mapRef = useRef();
-  const searchBoxRef = useRef();
 
   const mapContainerStyle = {
     width: "100%", 
@@ -17,35 +16,39 @@ function App() {
 
   const options = {
     zoomControl: true,
-    mapTypeControl: false, // Disable the Map/Satellite toggle
+    mapTypeControl: false,
     streetViewControl: false,
     rotateControl: true,
     fullscreenControl: false,
-    scaleControl: false, // Optional: disable scale control
+    scaleControl: false,
   };
 
-  const onSearchBoxLoad = (ref) => {
-    searchBoxRef.current = ref;
-  };
+  // Handle location search
+  const handleSearch = async (event) => {
+    if (event.key === "Enter") {
+      const location = event.target.value;
+      if (!location) return;
 
-  const onPlacesChanged = () => {
-    const places = searchBoxRef.current.getPlaces();
-    if (places.length === 0) return;
+      try {
+        // Fetch coordinates using Geocoding API
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
+        );
+        const data = await response.json();
 
-    const place = places[0];
-    const newCenter = {
-      lat: place.geometry.location.lat(),
-      lng: place.geometry.location.lng(),
-    };
+        if (data.status === "OK" && data.results.length > 0) {
+          const { lat, lng } = data.results[0].geometry.location;
+          const newCenter = { lat, lng };
 
-    setCenter(newCenter);
-    mapRef.current.panTo(newCenter); 
-  };
-
-  // Handle enter key press to trigger search
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      onPlacesChanged();
+          setCenter(newCenter);
+          mapRef.current.panTo(newCenter); // Pan the map to the new location
+        } else {
+          alert("Location not found. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error fetching location:", error);
+        alert("Failed to search location. Please try again.");
+      }
     }
   };
 
@@ -59,10 +62,10 @@ function App() {
         <div>
           {/* Google Map */}
           <div className="map-container">
-            <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
+            <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
               <div className="map-wrapper"> 
                 <GoogleMap
-                  id="map" /* Ensure the id is here */
+                  id="map"
                   mapContainerStyle={mapContainerStyle}
                   center={center}
                   zoom={12}
@@ -70,21 +73,19 @@ function App() {
                   onLoad={(map) => (mapRef.current = map)}
                 >
                   <MarkerF position={center} />
-                  <StandaloneSearchBox
-                    onLoad={onSearchBoxLoad}
-                    onPlacesChanged={onPlacesChanged}
-                  >
-                    <input
-                      type="text"
-                      placeholder="Search Location"
-                      className="search-box-input" 
-                      onKeyPress={handleKeyPress}  /* Listen for Enter key press */
-                    />
-                  </StandaloneSearchBox>
                 </GoogleMap>
               </div>
             </LoadScript>
-          </div> 
+          </div>  
+          {/* Search Box */}
+          <div className="search-box-container">
+            <input
+              type="text"
+              placeholder="Enter a location and press Enter"
+              className="search-box-input"
+              onKeyDown={handleSearch}
+            />
+          </div>        
         </div>
       </div>
 

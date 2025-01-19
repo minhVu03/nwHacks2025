@@ -100,3 +100,27 @@
   justify-content: center;
   align-items: center;
 }
+
+.search-box-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  padding-left: 200px;
+
+}
+
+.search-box-input {
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  padding: 10px;
+  width: 300px;
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.search-box-input:focus {
+  border-color: #FF6F61; 
+}
