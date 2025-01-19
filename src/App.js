@@ -6,6 +6,74 @@ import foodBankImage from "./images/food-bank.png";
 import megaphoneImage from "./images/megaphone.png";
 import hospitalImage from "./images/hospital.png";
 
+const fetchRealTimeData = async (map, lat, lng) => {
+  try {
+    const response = await axios.get(
+      `https://firms.modaps.eosdis.nasa.gov/api/fire-data?lat=${lat}&lon=${lng}&radius=50&api_key=${process.env.REACT_APP_NASA_API_KEY}`
+    );
+
+    const fireData = response.data;
+    console.log("Fire Data Response:", fireData);
+
+    // Ensure fireData is an array
+    const fireDataArray = Array.isArray(fireData) ? fireData : fireData.fires || [];
+
+    if (fireDataArray.length === 0) {
+      console.warn("No fire data available for this location.");
+      return;
+    }
+
+    // Convert the fire data into GeoJSON format
+    const geoJson = {
+      type: "FeatureCollection",
+      features: fireDataArray.map((fire) => ({
+        type: "Feature",
+        properties: {
+          dangerLevel: fire.dangerLevel || "moderate",
+        },
+        geometry: {
+          type: "Point",
+          coordinates: [fire.longitude, fire.latitude],
+        },
+      })),
+    };
+
+    map.data.addGeoJson(geoJson);
+
+    map.data.setStyle((feature) => {
+      const dangerLevel = feature.getProperty("dangerLevel");
+    
+      let color;
+      if (dangerLevel === "high") {
+        color = "red";
+      } else if (dangerLevel === "moderate") {
+        color = "orange";
+      } else {
+        color = "green"; // Default color for low/no danger
+      }
+    
+      return {
+        fillColor: color, // Color inside the overlay
+        strokeColor: color, // Border color
+        strokeWeight: 2, // Border thickness
+        fillOpacity: 0.6, // Transparency of the fill
+      };
+    });
+    
+
+    map.data.addListener("click", (event) => {
+      const dangerLevel = event.feature.getProperty("dangerLevel");
+      const infoWindow = new window.google.maps.InfoWindow({
+        content: `<div>Danger Level: ${dangerLevel}</div>`,
+        position: event.latLng,
+      });
+      infoWindow.open(map);
+    });
+  } catch (error) {
+    console.error("Error fetching real-time fire data:", error);
+  }
+};
+
 function App() {
   const [showChatbox, setShowChatbox] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -72,7 +140,7 @@ function App() {
       const location = event.target.value;
       setThisLocation(location);
       if (!location) return;
-
+  
       try {
         const response = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
@@ -80,16 +148,19 @@ function App() {
           )}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
         );
         const data = await response.json();
-
+  
         if (data.status === "OK" && data.results.length > 0) {
           const { lat, lng } = data.results[0].geometry.location;
           const newCenter = { lat, lng };
-
+  
           setCenter(newCenter);
           mapRef.current.panTo(newCenter); // Pan the map to the new location
-
+  
+          // Fetch real-time fire hazard data for the new location
+          fetchRealTimeData(mapRef.current, lat, lng);
+  
           callOpenAI(location);
-          fetchAirQuality(lat, lng); // Fetch air quality data for the new location
+          fetchAirQuality(lat, lng);
         } else {
           alert("Location not found. Please try again.");
         }
@@ -98,7 +169,7 @@ function App() {
         alert("Failed to search location. Please try again.");
       }
     }
-  };
+  };  
 
   const callOpenAI = async (location) => {
     try {
@@ -140,6 +211,17 @@ function App() {
       setAirQuality(null); // Reset on error
     }
   };
+
+  const getColor = (scale) => {
+    switch (scale) {
+      case 1: return "green";    // Excellent
+      case 2: return "lightgreen"; // Good
+      case 3: return "yellow";   // Moderate
+      case 4: return "orange";   // Poor
+      case 5: return "red";      // Very Poor
+      default: return "black";   // Default color
+    }
+  }
 
   useEffect(() => {
     if (!thisLocation) return;
@@ -187,16 +269,19 @@ function App() {
           <div className="map-container">
             <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
               <div className="map-wrapper">
-                <GoogleMap
-                  id="map"
-                  mapContainerStyle={mapContainerStyle}
-                  center={center}
-                  zoom={12}
-                  options={options}
-                  onLoad={(map) => (mapRef.current = map)}
-                >
-                  <MarkerF position={center} />
-                </GoogleMap>
+              <GoogleMap
+            id="map"
+            mapContainerStyle={mapContainerStyle}
+            center={center}
+            zoom={12}
+            options={options}
+            onLoad={(map) => {
+              mapRef.current = map;
+              fetchRealTimeData(center.lat, center.lng);
+            }}
+          >
+            <MarkerF position={center} />
+          </GoogleMap>
               </div>
             </LoadScript>
           </div>
@@ -219,8 +304,8 @@ function App() {
             <div className="score-box">
               {airQuality ? (
                 <>
-                  <span>{airQuality.index}</span>
-                  <span>{airQuality.description}</span>
+                  <span className="index box-title">{airQuality.index}</span>
+                  <span className="index-description" style={{color: getColor(airQuality.index)}}>{airQuality.description}</span>
                   <div>
                     <p>Health Advisory</p>
                     <span>
