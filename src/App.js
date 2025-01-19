@@ -1,18 +1,35 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { GoogleMap, LoadScript, MarkerF } from "@react-google-maps/api";
-import { OpenAI } from 'openai';
-import axios from 'axios';
-import './App.css';
-import foodBankImage from './images/food-bank.png';
-import megaphoneImage from './images/megaphone.png';
-import hospitalImage from './images/hospital.png';
-
+import axios from "axios";
+import "./App.css";
+import foodBankImage from "./images/food-bank.png";
+import megaphoneImage from "./images/megaphone.png";
+import hospitalImage from "./images/hospital.png";
 
 function App() {
   const [showChatbox, setShowChatbox] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [userInput, setUserInput] = useState('');
+  const [userInput, setUserInput] = useState("");
+  const [center, setCenter] = useState({ lat: 37.7749, lng: -122.4194 });
+  const [thisLocation, setThisLocation] = useState("Vancouver");
+  const [news, setNews] = useState([]); // State for storing news data
+  const [openAiData, setOpenAiData] = useState(null);
+
+  const mapRef = useRef();
+
+  const mapContainerStyle = {
+    width: "100%",
+    height: "400px",
+  };
+
+  const options = {
+    zoomControl: true,
+    mapTypeControl: false,
+    streetViewControl: false,
+    rotateControl: true,
+    fullscreenControl: false,
+    scaleControl: false,
+  };
 
   const toggleChatbox = () => {
     setShowChatbox(!showChatbox);
@@ -25,13 +42,13 @@ function App() {
   const sendMessage = async () => {
     if (!userInput.trim()) return;
 
-    setMessages([...messages, { sender: 'user', text: userInput }]);
-    setUserInput('');
+    setMessages([...messages, { sender: "user", text: userInput }]);
+    setUserInput("");
 
     try {
-      const response = await fetch('http://localhost:3001/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:3001/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ input: userInput }),
       });
 
@@ -39,38 +56,16 @@ function App() {
       if (data.response) {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: 'bot', text: data.response },
+          { sender: "bot", text: data.response },
         ]);
       } else {
-        console.error('Error:', data.error);
+        console.error("Error:", data.error);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
-  const [center, setCenter] = useState({
-    lat: 37.7749, 
-    lng: -122.4194,
-  });
-  const mapRef = useRef();
-
-  const mapContainerStyle = {
-    width: "100%", 
-    height: "400px", 
-  };
-
-  const options = {
-    zoomControl: true,
-    mapTypeControl: false,
-    streetViewControl: false,
-    rotateControl: true,
-    fullscreenControl: false,
-    scaleControl: false,
-  };
-
-  const [thisLocation, setThisLocation] = useState("Vancouver");  
-  // Handle location search
   const handleSearch = async (event) => {
     if (event.key === "Enter") {
       const location = event.target.value;
@@ -78,9 +73,10 @@ function App() {
       if (!location) return;
 
       try {
-        // Fetch coordinates using Geocoding API
         const response = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+            location
+          )}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
         );
         const data = await response.json();
 
@@ -102,74 +98,65 @@ function App() {
     }
   };
 
-
-  const [openAiData, setOpenAiData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const callOpenAI = async (userMessage) => {
+  const callOpenAI = async (location) => {
     try {
-        console.log(thisLocation);
-        console.log("enter try")
-        const response = await axios.post('http://localhost:3001/openai', {
-            userMessage,
-        });
-        console.log('OpenAI Response:', response.data.data);
-        let responseString = response.data.data;
-        responseString = responseString.slice(7, -3)
-        console.log(responseString);
-        const obj = JSON.parse(responseString);
-        console.log(obj)
-        setOpenAiData(obj);
+      const response = await axios.post("http://localhost:3001/openai", {
+        userMessage: location,
+      });
+      const responseString = response.data.data.slice(7, -3);
+      const obj = JSON.parse(responseString);
+      setOpenAiData(obj);
     } catch (error) {
-        console.error('Error calling OpenAI API:', error);
+      console.error("Error calling OpenAI API:", error);
     }
   };
 
-  //news
-
-  const [news, setNews] = useState([]); // State for storing news data
-
   useEffect(() => {
-    // Create the Axios request configuration
-    const config = {
-      method: 'get',
-      maxBodyLength: Infinity,
-      url: `https://newsapi.org/v2/everything?q=(important news wildfire in ` + "Australia" +`)&language=en&from=2024-12-19&domains=cnn.com,cbc.ca,bbc.com&sortBy=publishedAt&apiKey=${process.env.REACT_APP_NEWS_API_KEY}`,
-      headers: {},
+    if (!thisLocation) return;
+  
+    const fetchNews = async () => {
+      const config = {
+        method: "get",
+        url: `https://newsapi.org/v2/everything?q=${encodeURIComponent(
+          `wildfire evacuation ${thisLocation}`
+        )}&language=en&sortBy=publishedAt&pageSize=5&apiKey=${process.env.REACT_APP_NEWS_API_KEY}`,
+        headers: {},
+      };
+  
+      try {
+        const response = await axios.request(config);
+        const articles = response.data.articles || [];
+  
+        // Filter articles to ensure relevance (optional, based on keywords in title/description)
+        const relevantArticles = articles.filter(
+          (article) =>
+            article.title.toLowerCase().includes("wildfire") ||
+            article.description.toLowerCase().includes("evacuation")
+        );
+  
+        setNews(relevantArticles); // Update state with filtered articles
+      } catch (error) {
+        console.error("Error fetching news data:", error);
+        setNews([]); // Reset news data on error
+      }
     };
-
-    // Make the request using axios
-    axios
-      .request(config)
-      .then((response) => {
-        console.log('News Data:', response.data); // Log the response data
-        console.log(response.data.articles)
-        setNews(response.data.articles); // Store articles in state
-      })
-      .catch((error) => {
-        console.error('Error fetching news data:', error);
-      });
-  }, [thisLocation]); 
-
-
-
-
+  
+    fetchNews();
+  }, [thisLocation]); // Fetch news whenever thisLocation changes
+  
   return (
     <div className="App">
-      {/* Landing Section */}
       <div className="landing">
         <div className="landing-left-box">
           <h2 className="box-title">Embr Fires</h2>
           <span>
-            All in one website to help you get ready for wildfires & evacuation
+            All-in-one website to help you get ready for wildfires & evacuation
           </span>
         </div>
         <div>
-          {/* Google Map */}
           <div className="map-container">
             <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
-              <div className="map-wrapper"> 
+              <div className="map-wrapper">
                 <GoogleMap
                   id="map"
                   mapContainerStyle={mapContainerStyle}
@@ -182,8 +169,7 @@ function App() {
                 </GoogleMap>
               </div>
             </LoadScript>
-          </div>  
-          {/* Search Box */}
+          </div>
           <div className="search-box-container">
             <input
               type="text"
@@ -191,11 +177,10 @@ function App() {
               className="search-box-input"
               onKeyDown={handleSearch}
             />
-          </div>        
+          </div>
         </div>
       </div>
 
-      {/* Body Section */}
       <div className="body">
         <div className="row row-two">
           <div className="big-card air style-border">
@@ -205,25 +190,31 @@ function App() {
               <span>Good</span>
               <div>
                 <p>Health Advisory</p>
-                <span>
-                  Air quality is satisfactory. Outdoor activities are safe.
-                </span>
+                <span>Air quality is satisfactory. Outdoor activities are safe.</span>
               </div>
             </div>
           </div>
           <div className="big-card news style-border">
             <span className="box-title">News & Media</span>
-            <div className="news-card-wrapper" >
-              {news.map((article, index) => (
-                <div key={index} className="news-card style-border" onClick={(e) => {e.preventDefault(); window.location.href=article.url;}}>
-                  <img src={megaphoneImage} alt="News" />
-                  <div className="news-info" >
-                    <span>{article.title}</span>
-                    <span>{article.description}</span>
-                    <span>{article.publishedAt}</span>
+            <div className="news-card-wrapper">
+              {news.length > 0 ? (
+                news.map((article, index) => (
+                  <div
+                    key={index}
+                    className="news-card style-border"
+                    onClick={() => window.open(article.url, "_blank")}
+                  >
+                    <img src={article.urlToImage || megaphoneImage} alt="News" />
+                    <div className="news-info">
+                      <span>{article.title}</span>
+                      <span>{article.description}</span>
+                      <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p>No news available for this location.</p>
+              )}
             </div>
           </div>
         </div>
@@ -264,12 +255,6 @@ function App() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-
-        <div className="row row-four style-border">
-          <div>
-            <span>checklist</span>
           </div>
         </div>
       </div>
