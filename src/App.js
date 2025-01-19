@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { GoogleMap, LoadScript, MarkerF } from "@react-google-maps/api";
 import { OpenAI } from 'openai';
 import axios from 'axios';
@@ -79,7 +79,6 @@ function App() {
 
       try {
         // Fetch coordinates using Geocoding API
-        console.log(thisLocation, location);
         const response = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
         );
@@ -91,6 +90,8 @@ function App() {
 
           setCenter(newCenter);
           mapRef.current.panTo(newCenter); // Pan the map to the new location
+
+          callOpenAI(location);
         } else {
           alert("Location not found. Please try again.");
         }
@@ -101,38 +102,7 @@ function App() {
     }
   };
 
-  
-  // const fetchData = async () => {
-  //     setLoading(true);
-  //     setError(null);
 
-  //     // console.log(process.env.REACT_APP_OPEN_AI)
-  //     // console.log(process.env.REACT_APP_GOOGLE_MAPS_API_KEY)
-  //     const openai = new OpenAI({
-  //         apiKey: process.env.REACT_APP_OPEN_AI,
-  //         dangerouslyAllowBrowser: true
-  //        
-  //     });
-
-  //     try {
-  //         const completion = await openai.chat.completions.create({
-  //             model: "gpt-4", // Correct model name
-  //             store: true,
-  //             messages: [
-  //                 {
-  //                     role: "user",
-  //                     content: "List 4 Hospitals, Food Banks, and Shelters in 50.6745° N, 120.3273° W, with phone numbers and hours of operation.",
-  //                 },
-  //             ],
-  //         });
-
-  //         setData(completion.choices[0].message.content);
-  //     } catch (err) {
-  //         setError('Failed to fetch data. Please try again.');
-  //     } finally {
-  //         setLoading(false);
-  //     }
-  // };
   const [openAiData, setOpenAiData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -158,6 +128,31 @@ function App() {
 
   //news
 
+  const [news, setNews] = useState([]); // State for storing news data
+
+  useEffect(() => {
+    // Create the Axios request configuration
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `https://newsapi.org/v2/everything?q=(important news wildfire in ` + "Australia" +`)&language=en&from=2024-12-19&domains=cnn.com,cbc.ca,bbc.com&sortBy=publishedAt&apiKey=${process.env.REACT_APP_NEWS_API_KEY}`,
+      headers: {},
+    };
+
+    // Make the request using axios
+    axios
+      .request(config)
+      .then((response) => {
+        console.log('News Data:', response.data); // Log the response data
+        console.log(response.data.articles)
+        setNews(response.data.articles); // Store articles in state
+      })
+      .catch((error) => {
+        console.error('Error fetching news data:', error);
+      });
+  }, [thisLocation]); 
+
+
 
 
   return (
@@ -165,9 +160,9 @@ function App() {
       {/* Landing Section */}
       <div className="landing">
         <div className="landing-left-box">
-          <h2>Fire Warrior</h2>
+          <h2 className="box-title">Embr Fires</h2>
           <span>
-            All in 1 website to help you get ready for wildfires & evacuation
+            All in one website to help you get ready for wildfires & evacuation
           </span>
         </div>
         <div>
@@ -206,7 +201,6 @@ function App() {
           <div className="big-card air style-border">
             <span className="box-title">Air Quality</span>
             <div className="score-box">
-              <button onClick={() => callOpenAI(thisLocation)}>Test</button> 
               <span>43</span>
               <span>Good</span>
               <div>
@@ -219,14 +213,14 @@ function App() {
           </div>
           <div className="big-card news style-border">
             <span className="box-title">News & Media</span>
-            <div className="news-card-wrapper">
-              {[...Array(4)].map((_, index) => (
-                <div key={index} className="news-card style-border">
+            <div className="news-card-wrapper" >
+              {news.map((article, index) => (
+                <div key={index} className="news-card style-border" onClick={(e) => {e.preventDefault(); window.location.href=article.url;}}>
                   <img src={megaphoneImage} alt="News" />
-                  <div className="news-info">
-                    <span>title</span>
-                    <span>desc</span>
-                    <span>date</span>
+                  <div className="news-info" >
+                    <span>{article.title}</span>
+                    <span>{article.description}</span>
+                    <span>{article.publishedAt}</span>
                   </div>
                 </div>
               ))}
