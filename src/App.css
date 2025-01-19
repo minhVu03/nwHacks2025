@@ -9,7 +9,6 @@
   pointer-events: none;
 }
 
-
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -38,24 +37,55 @@
   paint-order: stroke fill;
   margin: 10px auto 10px auto;
 }
-
-.landing{
-  display: flex;
-  background-color: #F9AC38;
-  justify-content: center;
-  align-items: center;
-  min-height: 500px;
+#map {
+  height: 400px;            
+  width: 100%;              
+  max-width: 1000px;        
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.style-border{
+.map-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  padding-left: 80px;
+  width: 100%;
+}
+
+.map-wrapper {
+  width: 1000px;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.landing {
+  display: flex;
+  background-color: #F9AC38;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 500px;
+  padding-left: 80px;
+  width: 100%;
+}
+
+.landing-left-box {
+  text-align: left;
+}
+
+.style-border {
   border-radius: 15px;
   border: 2px solid #5F4253;
   background: #FFC5CB;
   box-shadow: 6px 6px 0px 0px #5F4253;
-  /* padding: 200px 400px; */
 }
 
-.body{
+.body {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -65,7 +95,7 @@
   margin: auto;
 }
 
-.row{
+.row {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -73,7 +103,7 @@
   min-width: 900px;
 }
 
-.big-card{
+.big-card {
   display: flex;
   flex-direction: column;
   margin: 20px;
@@ -90,7 +120,14 @@
   width: 100%;
 }
 
-.small-card{
+.small-card-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.small-card {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
@@ -236,3 +273,26 @@
   padding: 20px;
 }
 
+.search-box-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  padding-left: 200px;
+
+}
+
+.search-box-input {
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  padding: 10px;
+  width: 300px;
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.search-box-input:focus {
+  border-color: #FF6F61; 
+}
